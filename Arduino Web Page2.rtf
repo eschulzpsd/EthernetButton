@@ -1,0 +1,85 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1347\cocoasubrtf570
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 #include &lt;SPI.h&gt;\
+#include &lt;Ethernet.h&gt;\
+\
+\
+/******************** ETHERNET SETTINGS ********************/\
+\
+byte mac[] = \{ 0x90, 0xA2, 0xDA, 0x0D, 0x85, 0xD9 \};	 //physical mac address\
+byte ip[] = \{ 192, 168, 0, 112 \};                   // ip in lan\
+byte subnet[] = \{ 255, 255, 255, 0 \};              //subnet mask\
+byte gateway[] = \{ 192, 168, 0, 1 \};              // default gateway\
+EthernetServer server(80);                       //server port\
+\
+\
+void setup()\
+\{\
+Ethernet.begin(mac,ip,gateway,subnet);   	 // initialize Ethernet device\
+server.begin();                       			   // start to listen for clients\
+pinMode(8, INPUT);                    			  // input pin for switch\
+\}\
+\
+void loop()\
+\{\
+EthernetClient client = server.available(); 	 // look for the client\
+\
+// send a standard http response header\
+\
+client.println("HTTP/1.1 200 OK");\
+client.println("Content-Type: text/html");\
+client.println("Connnection: close");\
+client.println();\
+\
+/* \
+This portion is the webpage which will be\
+sent to client web browser one can use html , javascript\
+and another web markup language to make particular layout \
+*/\
+\
+client.println("&lt;!DOCTYPE html&gt;");  		//web page is made using html\
+client.println("&lt;html&gt;");\
+client.println("&lt;head&gt;");\
+client.println("&lt;title&gt;Ethernet Tutorial&lt;/title&gt;");\
+client.println("&lt;meta http-equiv=\\"refresh\\" content=\\"1\\"&gt;");\
+\
+/*\
+The above line is used to refresh the page in every 1 second\
+This will be sent to the browser as the following HTML code:\
+&lt;meta http-equiv="refresh" content="1"&gt;\
+content = 1 sec i.e assign time for refresh \
+*/\
+\
+client.println("&lt;/head&gt;");\
+client.println("&lt;body&gt;");\
+client.println("&lt;h1&gt;A Webserver Tutorial &lt;/h1&gt;");\
+client.println("&lt;h2&gt;Observing State Of Switch&lt;/h2&gt;");\
+\
+client.print("&lt;h2&gt;Switch is:  &lt;/2&gt;");\
+\
+if (digitalRead(8))\
+\{\
+client.println("&lt;h3&gt;ON&lt;/h3&gt;");\
+\}\
+else\
+\{\
+client.println("&lt;h3&gt;OFF&lt;/h3&gt;");\
+\}\
+\
+client.println("&lt;/body&gt;");\
+client.println("&lt;/html&gt;");\
+\
+delay(1);  				// giving time to receive the data\
+\
+/*\
+The following line is important because it will stop the client\
+and look for the new connection in the next iteration i.e\
+EthernetClient client = server.available();\
+*/\
+client.stop();\
+\
+\}}
